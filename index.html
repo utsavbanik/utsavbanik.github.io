@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utsav</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #141925;
+            --bg-tertiary: #1a202e;
+            --accent-blue: #60a5fa;
+            --accent-blue-dark: #3b82f6;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, #0a0e1a 0%, #141925 50%, #1a202e 100%);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(96, 165, 250, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.03;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            z-index: 1;
+        }
+
+        /* Particles Canvas */
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .content-wrapper {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Header */
+        header {
+            position: sticky;
+            top: 0;
+            backdrop-filter: blur(12px);
+            background: rgba(10, 14, 26, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            z-index: 100;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        .animate-slide-in-left {
+            animation: slideInLeft 0.8s ease-out forwards;
+        }
+
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
+        .delay-500 { animation-delay: 0.5s; }
+        .delay-600 { animation-delay: 0.6s; }
+
+        /* Card effects */
+        .card {
+            background: rgba(26, 32, 46, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(96, 165, 250, 0.3);
+            box-shadow: 0 20px 40px rgba(96, 165, 250, 0.15), 0 0 60px rgba(96, 165, 250, 0.1);
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-blue-dark) 100%);
+            color: white;
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 4px 20px rgba(96, 165, 250, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(96, 165, 250, 0.4);
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: rgba(96, 165, 250, 0.1);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            border-radius: 50px;
+            color: var(--accent-blue);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Navigation link hover effect */
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent-blue);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+
+        /* Social icons */
+        .social-icon {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .social-icon:hover {
+            background: rgba(96, 165, 250, 0.15);
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+            transform: translateY(-3px);
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-blue) 0%, var(--accent-blue-dark) 100%);
+            border-radius: 10px;
+            transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Form inputs */
+        .form-input {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(26, 32, 46, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 15px;
+            transition: all 0.3s ease;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 140px;
+        }
+
+        /* Mobile menu */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 280px;
+            height: 100vh;
+            background: rgba(20, 25, 37, 0.98);
+            backdrop-filter: blur(20px);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            padding: 80px 30px 30px;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .mobile-menu.active {
+            right: 0;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 2px;
+            background: var(--text-primary);
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(7px, 7px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+        }
+
+        /* Scroll reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        
+    </style>
+</head>
+<body>
+    <canvas id="particles"></canvas>
+    <div class="noise"></div>
+    <div class="content-wrapper">
+        <!-- Header -->
+        <header>
+            <nav class="relative z-50 container mx-auto px-6 py-5 flex justify-between items-center max-w-6xl">
+                <div class="text-xl font-bold tracking-tight">
+                <span style="font-family: 'JetBrains Mono', monospace;"><a href="https://www.utsavbanik.in/"><img src="utsavbanik5.png" alt="Utsav Banik Logo" class="h-10"></a></span>
+                </div>
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <div class="hidden md:flex gap-8 items-center" id="navMenu">
+                    <a href="#home" class="nav-link text-sm text-gray-300 hover:text-blue-400 transition active">Home</a>
+                    <a href="#about" class="nav-link text-sm text-gray-300 hover:text-blue-400 transition">About</a>
+                    <a href="#projects" class="nav-link text-sm text-gray-300 hover:text-blue-400 transition">Projects</a>
+                    <a href="#skills" class="nav-link text-sm text-gray-300 hover:text-blue-400 transition">Skills</a>
+                    <a href="#contact" class="nav-link text-sm text-gray-300 hover:text-blue-400 transition">Contact</a>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <button class="absolute top-6 right-6 text-gray-300 hover:text-blue-400 transition" id="closeMenu" aria-label="Close menu">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <div class="flex flex-col gap-6">
+                <a href="#home" class="text-lg text-gray-300 hover:text-blue-400 transition mobile-link">Home</a>
+                <a href="#about" class="text-lg text-gray-300 hover:text-blue-400 transition mobile-link">About</a>
+                <a href="#projects" class="text-lg text-gray-300 hover:text-blue-400 transition mobile-link">Projects</a>
+                <a href="#skills" class="text-lg text-gray-300 hover:text-blue-400 transition mobile-link">Skills</a>
+                <a href="#contact" class="text-lg text-gray-300 hover:text-blue-400 transition mobile-link">Contact</a>
+            </div>
+        </div>
+
+        <!-- Hero Section -->
+        <section id="home" class="container mx-auto px-6 py-16 md:py-24 lg:py-32 max-w-4xl">
+            <div class="flex flex-col items-center text-center">
+                <div class="badge animate-fade-in-up mb-6">Hello, I'm Utsav.</div>
+                <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in-up delay-100 px-4" style="line-height: 1.1;">
+                    Web Developer
+                </h1>
+                <p class="text-base sm:text-lg md:text-xl text-gray-400 mb-10 max-w-2xl mx-auto animate-fade-in-up delay-200 leading-relaxed px-4">
+                    Crafting beautiful, functional, and user-focused digital experiences with modern web technologies.
+                </p>
+
+                <div class="flex justify-center gap-4 animate-fade-in-up delay-400 flex-wrap">
+                    <a href="https://github.com/utsavbanik" target="_blank" class="social-icon" aria-label="GitHub">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                    </a>
+                    <a href="https://www.linkedin.com/in/utsav-banik/" target="_blank" class="social-icon" aria-label="LinkedIn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                            <rect x="2" y="9" width="4" height="12"></rect>
+                            <circle cx="4" cy="4" r="2"></circle>
+                        </svg>
+                    </a>
+                    <a href="mailto:utsavbanik@outlook.com" class="social-icon" aria-label="Email">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                    </a>
+                    <a href="https://discord.com/users/1036937425047535656" target="_blank" class="social-icon" aria-label="Discord">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
+                        </svg>
+                    
+                    <a href="https://www.instagram.com/utsav_xd_/" target="_blank" class="social-icon" aria-label="Instagram">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                        </svg>
+                    </a>
+                    <a href="https://x.com/Chill16Mr2071" target="_blank" class="social-icon" aria-label="X (Twitter)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                        </svg>
+                    </a>
+                </div>
+                <button style="margin-top: 30px;" class="btn-primary animate-fade-in-up delay-300 mb-10" onclick="document.getElementById('contact').scrollIntoView({behavior: 'smooth'})">
+                ⬇ Get In Touch
+                </button>
+            </div>
+        </section>
+
+        <!-- About Section -->
+<!-- ABOUT ME SECTION -->
+<section id="about" class=" container mx-auto px-6 py-16 md:py-20 max-w-6xl">
+
+  <!-- Ambient Background Glow -->
+  <div class="absolute inset-0 -z-10 overflow-hidden">
+    <div class="absolute -top-24 -left-24 w-96 h-96 bg-cyan-500/10 blur-[120px] rounded-full"></div>
+    <div class="absolute top-1/2 -right-24 w-96 h-96 bg-purple-500/10 blur-[120px] rounded-full"></div>
+  </div>
+
+  <div class="text-center mb-12 md:mb-16 reveal active">
+    <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">About Me
+      <div class="mt-2 h-1 bg-gradient-to-r from-cyan-500 to-transparent mx-auto w-40"></div>
+    </h2>
+    <p class="text-base md:text-lg text-gray-400">
+      A quick snapshot of who I am and what I love building
+    </p>
+  </div>
+
+  <!-- Background Card -->
+  <div class="relative mt-10 rounded-2xl p-6 md:p-8 lg:p-10 
+              bg-gradient-to-br from-white/5 to-white/0
+              border border-white/10
+              backdrop-blur-xl
+              shadow-lg shadow-cyan-500/10
+              transition-all duration-300
+              hover:border-cyan-400/30 hover:shadow-cyan-500/30">
+
+    <div class="flex flex-col md:flex-row md:items-center gap-8">
+      <!-- Avatar -->
+      <div class="flex flex-col items-center text-center">
+        <div class="w-28 h-28 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-[3px] shadow-lg shadow-blue-500/30 flex-shrink-0">
+          <img src="logomain.jpg" alt="Avatar" class="w-full h-full rounded-full object-cover">
+        </div>
+        <h4 class="mt-4 text-xl md:text-2xl lg:text-3xl font-semibold">
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-600 drop-shadow-lg">Utsav Banik.</span>
+        </h4>
+      </div>
+
+      <!-- About Text -->
+      <div class="flex-1">
+        <h3 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 leading-tight">
+          Passionate about creating <span class="text-blue-400">beautiful experiences.</span>
+        </h3>
+        <p class="text-base md:text-lg text-gray-400 mb-4 leading-relaxed">
+          I'm a design-focused developer who enjoys crafting modern web interfaces, interactive experiences, and visually engaging digital products.
+        </p>
+        <p class="text-base md:text-lg text-gray-400 leading-relaxed">
+          My workflow blends creativity with logic, ensuring every project feels smooth, fast, and enjoyable to use while maintaining clean and scalable code.
+        </p>
+      </div>
+    </div>
+
+  </div>
+      <!-- Design & Development Mini Cards -->
+    <div class="grid sm:grid-cols-2 gap-6 mt-10">
+      
+      <div class="relative rounded-2xl p-6 md:p-8
+                  bg-gradient-to-br from-white/5 to-white/0
+                  border border-white/10
+                  backdrop-blur-xl
+                  shadow-lg shadow-yellow-500/10
+                  transition-all duration-300
+                  hover:border-yellow-400/30 hover:shadow-yellow-500/30">
+        <h4 class="relative inline-block text-xl md:text-2xl font-bold mb-6">
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-600 drop-shadow-lg">Design</span>
+          <span class="absolute left-0 -bottom-2 h-[3px] w-full rounded-full
+                       bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-600"></span>
+        </h4>
+        <p class="text-gray-400 text-sm md:text-base leading-relaxed">
+          Crafting intuitive layouts, balanced typography, and immersive visuals that elevate user interaction.
+        </p>
+      </div>
+      
+      <div class="relative rounded-2xl p-6 md:p-8
+                  bg-gradient-to-br from-white/5 to-white/0
+                  border border-white/10
+                  backdrop-blur-xl
+                  shadow-lg shadow-blue-500/10
+                  transition-all duration-300
+                  hover:border-blue-400/30 hover:shadow-blue-500/30">
+        <h4 class="relative inline-block text-xl md:text-2xl font-bold mb-6 text-blue-400">
+          Development
+          <span class="absolute left-0 -bottom-2 h-[3px] w-full rounded-full
+                       bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-500"></span>
+        </h4>
+        <p class="text-gray-400 text-sm md:text-base leading-relaxed">
+          Building scalable, responsive, and high performance applications using modern web technologies.
+        </p>
+      </div>
+
+    </div>
+</section>
+
+
+        <!-- Projects Section -->
+        <section id="projects" class="container mx-auto px-6 py-16 md:py-20 max-w-6xl">
+            <div class="text-center mb-12 md:mb-16 reveal">
+                <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Featured Projects<div class="mt-2 h-1 bg-gradient-to-r from-cyan-500 to-transparent mx-auto w-40" bis_skin_checked="1"></div></h2>
+                <p class="text-base md:text-lg text-gray-400 max-w-2xl mx-auto px-4">
+                    A selection of my recent work showcasing design and development expertise
+                </p>
+            </div>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                <!-- Project 1 -->
+                <div class="card overflow-hidden reveal">
+                    <div class="aspect-video bg-gradient-to-br from-blue-500/20 to-purple-500/20 overflow-hidden">
+                        <img src="project1.png" alt="Minimal Dashboard" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500">
+                    </div>
+                    <div class="p-5 md:p-6">
+                        <h3 class="text-lg md:text-xl font-bold mb-2">Contact Webpage</h3>
+                        <p class="text-gray-400 text-sm mb-4">
+                            Website to contact me.
+                        </p>
+                        <button class="btn-primary text-sm py-2 px-6"><a href="https://utsavbanikofficial.github.io/" target="_blank" rel="noopener noreferrer">
+                        View Project ↗
+                        </a></button>
+                    </div>
+                </div>
+                <!-- Project 2 -->
+                <div class="card overflow-hidden reveal">
+                    <div class="aspect-video bg-gradient-to-br from-emerald-500/20 to-teal-500/20 overflow-hidden">
+                        <img src="proj15.png" alt="E-commerce Platform" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500">
+                    </div>
+                    <div class="p-5 md:p-6">
+                        <h3 class="text-lg md:text-xl font-bold mb-2">Secondary Website</h3>
+                        <p class="text-gray-400 text-sm mb-4">
+                            A secondary website showcasing additional projects and information.
+                        </p>
+                        <button class="btn-primary text-sm py-2 px-6"><a href="https://utsavbanik99.github.io/" target="_blank" rel="noopener noreferrer">
+                        View Project ↗
+                        </a></button>
+                    </div>
+                </div>
+                <!-- Project 3 -->
+                <div class="card overflow-hidden reveal">
+                    <div class="aspect-video bg-gradient-to-br from-pink-500/20 to-rose-500/20 overflow-hidden">
+                        <img src="discord.jpg" alt="Mobile Banking App" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500">
+                    </div>
+                    <div class="p-5 md:p-6">
+                        <h3 class="text-lg md:text-xl font-bold mb-2">Discord Bot</h3>
+                        <p class="text-gray-400 text-sm mb-4">
+                            Next generation discord application for advanced Discord management.
+                        </p>
+                        <button class="btn-primary text-sm py-2 px-6"><a href="" target="_blank" rel="noopener noreferrer">
+                        View Project ↗
+                        </a></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Skills Section -->
+        <section id="skills" class="container mx-auto px-6 py-16 md:py-20 max-w-4xl">
+            <div class="text-center mb-12 md:mb-16 reveal">
+                <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Technical Skills<div class="mt-2 h-1 bg-gradient-to-r from-cyan-500 to-transparent mx-auto w-40" bis_skin_checked="1"></div></h2>
+                <p class="text-base md:text-lg text-gray-400">
+                    Technologies and tools I work with
+                </p>
+            </div>
+            <div class="space-y-10 md:space-y-12">
+                <!-- Frontend -->
+                               <!-- Frontend -->
+                <div class="reveal active">
+    <!-- Frontend Card -->
+    <div class="relative rounded-2xl p-6 md:p-8
+                bg-gradient-to-br from-white/5 to-white/0
+                border border-white/10
+                backdrop-blur-xl
+                shadow-lg shadow-blue-500/10
+                transition-all duration-300
+                hover:border-blue-400/30 hover:shadow-blue-500/30">
+
+        <!-- Frontend Title with underline -->
+        <h3 class="relative inline-block text-xl md:text-2xl font-bold mb-6 text-blue-400">
+            Frontend
+            <span class="absolute left-0 -bottom-2 h-[3px] w-full rounded-full
+                         bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-500"></span>
+        </h3>
+
+        <!-- Skills -->
+        <div class="space-y-4 md:space-y-5">
+            <div class="skill-item">
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm md:text-base text-gray-300">HTML/CSS</span>
+                    <span class="text-gray-400 text-xs md:text-sm">95%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" data-progress="95" style="width: 95%;"></div>
+                </div>
+            </div>
+
+            <div class="skill-item">
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm md:text-base text-gray-300">JavaScript</span>
+                    <span class="text-gray-400 text-xs md:text-sm">90%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" data-progress="90" style="width: 90%;"></div>
+                </div>
+            </div>
+
+            <div class="skill-item">
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm md:text-base text-gray-300">React</span>
+                    <span class="text-gray-400 text-xs md:text-sm">85%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" data-progress="85" style="width: 85%;"></div>
+                </div>
+                </div>
+
+                <div class="skill-item">
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm md:text-base text-gray-300">Tailwind CSS</span>
+                    <span class="text-gray-400 text-xs md:text-sm">92%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" data-progress="92" style="width: 92%;"></div>
+                 </div>
+                 </div>
+                 </div>
+                 </div>
+                 </div>
+
+
+                <!-- Backend -->
+                <div class="reveal">
+    <!-- Backend Card -->
+    <div class="relative rounded-2xl p-6 md:p-8
+                bg-gradient-to-br from-white/5 to-white/0
+                border border-white/10
+                backdrop-blur-xl
+                shadow-lg shadow-blue-500/10
+                transition-all duration-300
+                hover:border-blue-400/30 hover:shadow-blue-500/30">
+
+        <!-- Backend Title -->
+        <h3 class="relative inline-block text-xl md:text-2xl font-bold mb-6 text-blue-400">
+            Backend
+            <span class="absolute left-0 -bottom-2 h-[3px] w-full rounded-full
+                         bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500"></span>
+        </h3>
+
+        <div class="space-y-4 md:space-y-5">
+            <div class="skill-item">
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm md:text-base text-gray-300">Node.js</span>
+                    <span class="text-gray-400 text-xs md:text-sm">88%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" data-progress="88" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="skill-item">
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm md:text-base text-gray-300">Express</span>
+                    <span class="text-gray-400 text-xs md:text-sm">85%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" data-progress="85" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="skill-item">
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm md:text-base text-gray-300">MongoDB</span>
+                    <span class="text-gray-400 text-xs md:text-sm">80%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" data-progress="80" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="skill-item">
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm md:text-base text-gray-300">Firebase</span>
+                    <span class="text-gray-400 text-xs md:text-sm">82%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" data-progress="82" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+                <!-- Design -->
+                <div class="reveal">
+    <!-- Design Card -->
+    <div class="relative rounded-2xl p-6 md:p-8
+                bg-gradient-to-br from-white/5 to-white/0
+                border border-white/10
+                backdrop-blur-xl
+                shadow-lg shadow-blue-500/10
+                transition-all duration-300
+                hover:border-blue-400/30 hover:shadow-blue-500/30">
+
+        <!-- Design Title -->
+        <h3 class="relative inline-block text-xl md:text-2xl font-bold mb-6 text-blue-400">
+            Design
+            <span class="absolute left-0 -bottom-2 h-[3px] w-full rounded-full
+                         bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-500"></span>
+        </h3>
+
+        <div class="space-y-4 md:space-y-5">
+            <div class="skill-item">
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm md:text-base text-gray-300">Figma</span>
+                    <span class="text-gray-400 text-xs md:text-sm">90%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" data-progress="90" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="skill-item">
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm md:text-base text-gray-300">Adobe XD</span>
+                    <span class="text-gray-400 text-xs md:text-sm">85%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" data-progress="85" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="skill-item">
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm md:text-base text-gray-300">Photoshop</span>
+                    <span class="text-gray-400 text-xs md:text-sm">75%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" data-progress="75" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Contact Section -->
+<section id="contact" class="container mx-auto px-6 py-16 md:py-20 max-w-2xl">
+            <!-- Heading -->
+        <div class="text-center mb-10 md:mb-12">
+            <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Lets Connect<div class="mt-2 h-1 bg-gradient-to-r from-cyan-500 to-transparent mx-auto w-40" bis_skin_checked="1"></div></h2>
+                
+
+                <span class="absolute left-1/2 -translate-x-1/2 -bottom-2 h-[3px] w-full rounded-full
+                             bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-500"></span>
+            </h2>
+            <p class="text-base md:text-lg text-gray-400 px-4 mt-4">
+                Have a project in mind? Let's work together to bring your ideas to life.
+            </p>
+        </div>
+    <div class="reveal relative rounded-2xl p-6 md:p-8
+                bg-gradient-to-br from-white/5 to-white/0
+                border border-white/10
+                backdrop-blur-xl
+                shadow-lg shadow-blue-500/10
+                transition-all duration-300
+                hover:border-blue-400/30 hover:shadow-blue-500/30">
+
+
+
+        <!-- Form -->
+        <form class="space-y-5 md:space-y-6"
+              onsubmit="event.preventDefault(); alert('Thank you for your message! I will get back to you soon.');">
+
+            <div>
+                <input type="text" class="form-input" placeholder="Your Name" required>
+            </div>
+
+            <div>
+                <input type="email" class="form-input" placeholder="Your Email" required>
+            </div>
+
+            <div>
+                <textarea class="form-input" placeholder="Your Message" required></textarea>
+            </div>
+
+            <button type="submit" class="btn-primary w-full">
+                Send Message
+            </button>
+        </form>
+
+    </div>
+</section>
+
+
+        <!-- Footer -->
+        <footer class="border-t border-gray-800 mt-16 md:mt-20">
+            <div class="container mx-auto px-6 py-10 md:py-12 max-w-4xl">
+                <div class="text-center">
+                    <div class="text-xl md:text-2xl font-bold mb-6" style="font-family: 'JetBrains Mono', monospace;"> <a href="https://www.utsavbanik.in/"><img src="utsavbanik5.png" alt="Utsav Banik" class="inline-block w-30 h-10 mr-2"></a></div>
+                    <div class="flex justify-center gap-3 md:gap-4 mb-6 md:mb-8 flex-wrap">
+
+                        <a href="https://github.com/utsavbanik" target="_blank" class="social-icon" aria-label="GitHub">
+                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3"></path>
+                            <path d="M16 22v-3.87a3.37 3.37 0 0 0-.94-2.61 c3.14-.35 6.44-1.54 6.44-7 A5.44 5.44 0 0 0 20 4.77 A5.07 5.07 0 0 0 19.91 1 S18.73.65 16 2.48 a13.38 13.38 0 0 0-7 0 C6.27.65 5.09 1 5.09 1 A5.07 5.07 0 0 0 5 4.77 a5.44 5.44 0 0 0-1.5 3.78 c0 5.42 3.3 6.61 6.44 7 A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                         </a>
+
+                        <a href="https://www.linkedin.com/in/utsav-banik/" target="_blank" class="social-icon" aria-label="LinkedIn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                              <rect x="2" y="9" width="4" height="12"></rect>
+                              <circle cx="4" cy="4" r="2"></circle>
+                            </svg>
+                        </a>
+
+                        <a href="mailto:utsavbanik@outlook.com" class="social-icon" aria-label="Email">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                        </a>
+                        <a href="https://discord.com/users/1036937425047535656" target="_blank" class="social-icon" aria-label="Discord">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
+                            </svg>
+                        </a>
+                                        
+                    
+                    
+                        <a href="https://www.instagram.com/utsav_xd_/" target="_blank" class="social-icon" aria-label="Instagram">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                            </svg>
+                        </a>
+                        <a href="https://x.com/Chill16Mr2071" target="_blank" class="social-icon" aria-label="X (Twitter)">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                            </svg>
+                        </a>
+                    </div>
+                    <p class="text-gray-500 text-xs md:text-sm">
+                        © 2025 Utsav Banik. All rights reserved.
+                        <div class="mt-2 h-1 bg-gradient-to-r from-cyan-500 to-transparent mx-auto w-40" bis_skin_checked="1"></div>
+                    </p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        // Mobile menu toggle
+        const hamburger = document.getElementById('hamburger');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const closeMenu = document.getElementById('closeMenu');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+        });
+
+        closeMenu.addEventListener('click', () => {
+            hamburger.classList.remove('active');
+            mobileMenu.classList.remove('active');
+        });
+
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                mobileMenu.classList.remove('active');
+            });
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!mobileMenu.contains(e.target) && !hamburger.contains(e.target)) {
+                hamburger.classList.remove('active');
+                mobileMenu.classList.remove('active');
+            }
+        });
+
+        // Scroll reveal animation
+        const revealElements = document.querySelectorAll('.reveal');
+        
+        const revealOnScroll = () => {
+            revealElements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                
+                if (elementTop < windowHeight - 100) {
+                    element.classList.add('active');
+                }
+            });
+        };
+
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll(); // Initial check
+
+        // Animate progress bars on scroll
+        const progressBars = document.querySelectorAll('.progress-fill');
+        let progressAnimated = false;
+
+        const animateProgress = () => {
+            const skillsSection = document.getElementById('skills');
+            const sectionTop = skillsSection.getBoundingClientRect().top;
+            const windowHeight = window.innerHeight;
+
+            if (sectionTop < windowHeight - 200 && !progressAnimated) {
+                progressAnimated = true;
+                progressBars.forEach((bar, index) => {
+                    setTimeout(() => {
+                        const progress = bar.getAttribute('data-progress');
+                        bar.style.width = progress + '%';
+                    }, index * 100);
+                });
+            }
+        };
+
+        window.addEventListener('scroll', animateProgress);
+        animateProgress(); // Initial check
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Active navigation link on scroll
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        const setActiveLink = () => {
+            let currentSection = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (window.scrollY >= sectionTop - 200) {
+                    currentSection = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${currentSection}`) {
+                    link.classList.add('active');
+                }
+            });
+        };
+
+        window.addEventListener('scroll', setActiveLink);
+        setActiveLink(); // Initial check
+
+        /* ===== Global Soft Floating Particles ===== */
+        const canvas = document.getElementById("particles");
+        const ctx = canvas.getContext("2d");
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener("resize", resizeCanvas);
+
+        const particles = [];
+        const PARTICLE_COUNT = 60;
+
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                r: Math.random() * 1.8 + 0.5,
+                vx: (Math.random() - 0.5) * 0.2,
+                vy: (Math.random() - 0.5) * 0.2,
+                alpha: Math.random() * 0.5 + 0.2
+            });
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < 0) p.x = canvas.width;
+                if (p.x > canvas.width) p.x = 0;
+                if (p.y < 0) p.y = canvas.height;
+                if (p.y > canvas.height) p.y = 0;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(96, 165, 250, ${p.alpha})`;
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = "#60a5fa";
+                ctx.fill();
+            });
+
+            requestAnimationFrame(animateParticles);
+        }
+
+        animateParticles();
+    </script>
+</body>
+</html>
